@@ -12,9 +12,11 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: JasonEtco/rss-to-readme@v2
+      - uses: JasonEtco/rss-to-readme@v1
         with:
           feed-url: https://blenback.github.io/presentations.xml
           readme-section: example
           branch: main
+
+
 
