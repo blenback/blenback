@@ -10,6 +10,8 @@
   </div>
 
 ### 📝 Recent activities
+<!--START_SECTION:posts-->
+<!--END_SECTION:posts-->
 
 ### 🗣️ Recent presentations:
 <!--START_SECTION:presentations-->
