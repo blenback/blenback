@@ -13,15 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: JasonEtco/rss-to-readme@v1
-      - with:
+        with:
           feed-url: https://blenback.github.io/presentations.xml
           readme-section: presentations
           branch: main
-      - with:
+      - uses: JasonEtco/rss-to-readme@v1
+        with:
           feed-url: https://blenback.github.io/publications.xml
           readme-section: posts
           branch: main
-      - with:
+      - uses: JasonEtco/rss-to-readme@v1
+        with:
           feed-url: https://blenback.github.io/publications.xml
           readme-section: publications
           branch: main
