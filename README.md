@@ -9,14 +9,14 @@
 <hr>
   </div>
 
-### 📝 Recent activities
-<!--START_SECTION:posts-->
+### 📝 Recent publications
+<!--START_SECTION:publications-->
 * [Broadening the scope of future visions for nature positive futures in Peru](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2023_11_30_SwissRE&#x2F;index.html)
 * [Characterising non-stationarity in predictive models of land use in Swiss mountain parks to inform scenarios for deliberative transformation.](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_09_13_IMC&#x2F;index.html)
 * [ValPar.CH: Integrating land use change, Ecosystem Service and Biodiversity modelling to simulate pathways for a functioning Ecological Infrastructure for Switzerland.](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_07_01_IEMSs_ValParCH_pres&#x2F;index.html)
 * [Combining filter and embedded approaches to improve variable selection in land use change Cellular Automata models](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_07_01_IEMSs_model_pres&#x2F;index.html)
 * [Ex-ante identification of policy interventions to secure a functioning ecological infrastructure: A participatory Bayesian Network approach in Switzerland](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2021_06_09_ESP&#x2F;index.html)
-<!--END_SECTION:posts-->
+<!--END_SECTION:publications-->
 
 ### 🗣️ Recent presentations:
 <!--START_SECTION:presentations-->
