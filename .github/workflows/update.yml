@@ -17,11 +17,6 @@ jobs:
           feed-url: https://blenback.github.io/presentations.xml
           readme-section: presentations
           branch: main
-      - uses: JasonEtco/rss-to-readme@v1
-        with:
-          feed-url: https://blenback.github.io/publications.xml
-          readme-section: posts
-          branch: main
       - uses: JasonEtco/rss-to-readme@v2
         with:
           feed-url: https://blenback.github.io/publications.xml
