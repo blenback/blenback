@@ -15,6 +15,7 @@
 
 ### 📝 Recent publications
 <!--START_SECTION:publications-->
+
 <!--END_SECTION:publications-->
 
 ### 🗣️ Recent presentations:
