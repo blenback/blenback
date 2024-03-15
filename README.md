@@ -20,11 +20,11 @@
 
 ### 🗣️ Recent presentations:
 <!--START_SECTION:presentations-->
-* [Experiences of a ValPar.CH PhD](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2023_16_12_ValPar.CH_closing&#x2F;index.html)
-* [Broadening the scope of future visions for nature positive futures in Peru](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2023_11_30_SwissRE&#x2F;index.html)
-* [Characterising non-stationarity in predictive models of land use in Swiss mountain parks to inform scenarios for deliberative transformation.](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_09_13_IMC&#x2F;index.html)
-* [ValPar.CH: Integrating land use change, Ecosystem Service and Biodiversity modelling to simulate pathways for a functioning Ecological Infrastructure for Switzerland.](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_07_01_IEMSs_ValParCH_pres&#x2F;index.html)
-* [Combining filter and embedded approaches to improve variable selection in land use change Cellular Automata models](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_07_01_IEMSs_model_pres&#x2F;index.html)
+* [Experiences of a ValPar.CH PhD](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2023_16_12_ValPar.CH_closing&#x2F;)
+* [Broadening the scope of future visions for nature positive futures in Peru](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2023_11_30_SwissRE&#x2F;)
+* [Characterising non-stationarity in predictive models of land use in Swiss mountain parks to inform scenarios for deliberative transformation.](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_09_13_IMC&#x2F;)
+* [ValPar.CH: Integrating land use change, Ecosystem Service and Biodiversity modelling to simulate pathways for a functioning Ecological Infrastructure for Switzerland.](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_07_01_IEMSs_ValParCH_pres&#x2F;)
+* [Combining filter and embedded approaches to improve variable selection in land use change Cellular Automata models](https:&#x2F;&#x2F;blenback.github.io&#x2F;presentations&#x2F;2022_07_01_IEMSs_model_pres&#x2F;)
 <!--END_SECTION:presentations-->
 
 
