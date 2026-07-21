@@ -1,0 +1,9 @@
+{
+  "name": "blenback-readme-builder",
+  "private": true,
+  "type": "module",
+  "description": "Renders the profile README sections from the profi YAML source of truth and the website post sources.",
+  "dependencies": {
+    "yaml": "^2.6.1"
+  }
+}
