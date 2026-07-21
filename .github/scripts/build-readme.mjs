@@ -9,20 +9,40 @@
 // markers in README.md. Any fetch or parse failure aborts the whole run so a
 // transient outage can never blank a section.
 
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { parse as parseYaml } from "yaml";
+import { loadIcons } from "./lib/icons.mjs";
+import { loadFonts } from "./lib/typeset.mjs";
+import {
+  C,
+  cardHeight,
+  portraitUri,
+  renderBanner,
+  renderCard,
+  renderPill,
+  thumbHeight,
+  thumbnailUri,
+} from "./lib/svg.mjs";
 
 const PROFI = "https://raw.githubusercontent.com/blenback/profi/main";
 const SITE_REPO = "blenback/blenback.github.io";
 const SITE = "https://blenback.github.io";
 const README = "README.md";
+const ART = ".github/assets";
 
-// brand palette, mirrored from _brand.yml on the website
+// shields.io badges for the publication links, in the brand palette
 const FOREST = "36513C";
 const OLIVE = "6E7350";
 const BURNT = "BC5C32";
 
 const MAX = { posts: 4, publications: 4, presentations: 4, outputs: 3 };
+
+// Rendered pixel width per card, chosen so type reads at the same size whether
+// a section is laid out 2-up or 3-up.
+const CARD_W = { 2: 520, 3: 340 };
+const COL_PCT = { 2: "49%", 3: "32%" };
+
+const fonts = await loadFonts();
 
 // ---------------------------------------------------------------- fetching
 
@@ -123,7 +143,7 @@ function truncate(text, limit) {
   return `${clean.slice(0, clean.lastIndexOf(" ", limit)).trimEnd()}…`;
 }
 
-const blurb = (text, limit = 180) => escapeHtml(truncate(stripMarkdown(text), limit));
+const blurb = (text, limit = 180) => truncate(stripMarkdown(text), limit);
 
 // Asset paths appear as "/assets/x.png", "assets/x.png" and — in post front
 // matter, which is relative to posts/ — "../assets/x.png".
@@ -156,40 +176,38 @@ const asArray = (value) => (value == null ? [] : Array.isArray(value) ? value : 
 
 // ---------------------------------------------------------------- rendering
 
-// A responsive-ish card grid. GitHub strips CSS, so the layout has to be a
-// plain HTML table: image on top, then title, meta line and blurb.
-function cardGrid(cards, columns) {
-  const width = Math.floor(100 / columns);
-  const rows = [];
+/**
+ * Write one SVG per card and return the markup that lays them out.
+ *
+ * Deliberately not a <table>: GitHub's stylesheet puts a 1px border on every
+ * cell and greys alternate rows, and strips the style attributes that could
+ * undo it. Inline images inside a centred div flow side by side with no
+ * chrome at all, and each card carries its own rounded corners and shadow.
+ */
+async function cardGrid(section, cards, columns) {
+  const width = CARD_W[columns];
 
-  for (let i = 0; i < cards.length; i += columns) {
-    const slice = cards.slice(i, i + columns);
-    const cells = slice.map((card) => {
-      const parts = [];
-      if (card.image) {
-        parts.push(
-          `<a href="${card.href}"><img src="${card.image}" width="100%" alt="${escapeHtml(card.alt ?? card.title)}"></a>`,
-          "<br>",
-        );
-      }
-      parts.push(`<b><a href="${card.href}">${escapeHtml(card.title)}</a></b>`);
-      if (card.meta) parts.push(`<br><sub>${card.meta}</sub>`);
-      if (card.blurb) parts.push(`<br><br>${card.blurb}`);
-      if (card.tags?.length) {
-        const tags = card.tags
-          .map((tag) => `<img src="${badge(tag, OLIVE)}" alt="${escapeHtml(tag)}">`)
-          .join(" ");
-        parts.push(`<br><br>${tags}`);
-      }
-      return `      <td width="${width}%" valign="top">\n        ${parts.join("\n        ")}\n      </td>`;
-    });
+  // thumbnails have to be inlined as data URIs — camo will not resolve an
+  // external reference from inside an SVG it is proxying
+  await Promise.all(
+    cards.map(async (card) => {
+      if (card.image) card.image = await thumbnailUri(card.image, width, thumbHeight(width));
+    }),
+  );
 
-    // pad the final row so the columns stay even
-    while (cells.length < columns) cells.push(`      <td width="${width}%"></td>`);
-    rows.push(`    <tr>\n${cells.join("\n")}\n    </tr>`);
-  }
+  // one shared height per section keeps the grid on a baseline
+  const height = Math.max(...cards.map((card) => cardHeight(fonts, card, width)));
 
-  return `<table>\n${rows.join("\n")}\n</table>`;
+  const markup = await Promise.all(
+    cards.map(async (card, i) => {
+      const file = `${ART}/cards/${section}-${i + 1}.svg`;
+      await writeFile(file, renderCard(fonts, card, height, width));
+      const alt = escapeHtml([card.title, card.meta].filter(Boolean).join(" — "));
+      return `  <a href="${card.href}"><img src="${file}" width="${COL_PCT[columns]}" alt="${alt}"></a>`;
+    }),
+  );
+
+  return `<div align="center">\n${markup.join("\n")}\n</div>`;
 }
 
 function frontMatter(source) {
@@ -234,13 +252,11 @@ async function renderPosts() {
     title: post.meta.title,
     image: post.meta.image ? assetUrl(post.meta.image) : undefined,
     alt: post.meta["image-alt"],
-    meta: [monthYear(post.date), ...asArray(post.meta.categories).slice(0, 2)]
-      .map((part) => escapeHtml(part))
-      .join(" &middot; "),
+    meta: [monthYear(post.date), ...asArray(post.meta.categories).slice(0, 2)].join(" · "),
     blurb: blurb(post.blurb),
   }));
 
-  return cardGrid(await resolveCards(cards, MAX.posts), 2);
+  return cardGrid("posts", await resolveCards(cards, MAX.posts), 2);
 }
 
 function renderPublications(publications) {
@@ -290,12 +306,12 @@ async function renderPresentations(presentations) {
       alt: item["image-alt"],
       meta: [item.event, item.location, monthYear(new Date(item.date))]
         .filter(Boolean)
-        .map((part) => escapeHtml(String(part).trim()))
-        .join(" &middot; "),
+        .map((part) => String(part).trim())
+        .join(" · "),
       tags: asArray(item.categories).slice(0, 3),
     }));
 
-  return cardGrid(await resolveCards(cards, MAX.presentations), 2);
+  return cardGrid("presentations", await resolveCards(cards, MAX.presentations), 2);
 }
 
 async function renderOutputs(outputs) {
@@ -310,7 +326,55 @@ async function renderOutputs(outputs) {
       tags: asArray(item.categories),
     }));
 
-  return cardGrid(await resolveCards(cards, MAX.outputs), MAX.outputs);
+  return cardGrid("outputs", await resolveCards(cards, MAX.outputs), 3);
+}
+
+// ----------------------------------------------------------------- chrome
+
+const BUTTONS = [
+  { label: "Website", href: `${SITE}/`, icon: "quarto", fill: C.forest },
+  { label: "Download CV", href: `${SITE}/curriculum-vitae/`, icon: "document", fill: C.burnt },
+  { label: "Scholar", href: "https://scholar.google.com/citations?hl=en&user=h00y-m4AAAAJ", icon: "googlescholar", fill: C.forest },
+  { label: "ORCID", href: "https://orcid.org/0000-0002-8113-2114", icon: "orcid", fill: C.forest },
+  { label: "ResearchGate", href: "https://www.researchgate.net/profile/Benjamin-Black-5", icon: "researchgate", fill: C.forest },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/ben-black-9889a1150/", icon: "linkedin", fill: C.forest },
+  { label: "GitHub", href: "https://github.com/blenback", icon: "github", fill: C.forest },
+  { label: "Email", href: "mailto:benjaminsamuel.black@zalf.de", icon: "envelope", fill: C.olive },
+];
+
+const ROLE = {
+  group: "Data & Modelling Infrastructure for Living Labs",
+  suffix: "at ZALF.",
+};
+
+const INTRO =
+  "A scientific researcher working on spatial modelling, data and scientific " +
+  "visualisation. I share the work that doesn't always make it into papers — " +
+  "code, maps and field notes — in the hope that it's useful.";
+
+async function renderHero() {
+  const portrait = await portraitUri(`${SITE}/assets/landing_portrait_cropped.jpg`, 380);
+  await writeFile(`${ART}/banner.svg`, renderBanner(fonts, { portrait, role: ROLE, intro: INTRO }));
+
+  const icons = await loadIcons([...new Set(BUTTONS.map((b) => b.icon))]);
+  const pills = await Promise.all(
+    BUTTONS.map(async (button) => {
+      const file = `${ART}/buttons/${button.label.toLowerCase().replace(/\s+/g, "-")}.svg`;
+      await writeFile(file, renderPill(fonts, { ...button, icon: icons[button.icon] }));
+      // height keeps every pill on one visual line whatever its label length
+      return `  <a href="${button.href}"><img src="${file}" height="34" alt="${button.label}"></a>`;
+    }),
+  );
+
+  // Link the banner to the site: GitHub auto-wraps any unlinked image in a
+  // link to the raw file, so without this, clicking it opens the SVG source.
+  return [
+    `<div align="center">`,
+    `  <a href="${SITE}/"><img src="${ART}/banner.svg" width="100%" alt="Hi there, I'm Ben Black — Head of the Working Group ${ROLE.group}, ${ROLE.suffix}"></a>`,
+    ``,
+    ...pills,
+    `</div>`,
+  ].join("\n");
 }
 
 // ---------------------------------------------------------------- assembly
@@ -323,6 +387,13 @@ function replaceSection(readme, name, body) {
   return readme.replace(pattern, `${start}\n${body}\n${end}`);
 }
 
+// Rebuild the generated art from scratch so renamed or removed entries never
+// leave orphaned SVGs behind.
+await rm(`${ART}/cards`, { recursive: true, force: true });
+await rm(`${ART}/buttons`, { recursive: true, force: true });
+await mkdir(`${ART}/cards`, { recursive: true });
+await mkdir(`${ART}/buttons`, { recursive: true });
+
 const [publications, presentations, outputs] = await Promise.all([
   fetchYaml("publications"),
   fetchYaml("presentations"),
@@ -330,6 +401,7 @@ const [publications, presentations, outputs] = await Promise.all([
 ]);
 
 const sections = {
+  hero: await renderHero(),
   posts: await renderPosts(),
   publications: renderPublications(publications),
   presentations: await renderPresentations(presentations),

@@ -4,6 +4,8 @@
   "type": "module",
   "description": "Renders the profile README sections from the profi YAML source of truth and the website post sources.",
   "dependencies": {
+    "opentype.js": "^2.0.0",
+    "sharp": "^0.35.3",
     "yaml": "^2.6.1"
   }
 }
